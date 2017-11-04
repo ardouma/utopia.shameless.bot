@@ -9,8 +9,6 @@ target/
 .settings
 .springBeans
 
-slack-bot/src/main/resources/application.properties
-
 ### IntelliJ IDEA ###
 .idea
 *.iws
