@@ -1,4 +1,4 @@
-package utopia.shameless.slackbot;
+package utopia.shameless.slackbot.configuration;
 
 import org.apache.camel.builder.RouteBuilder;
 

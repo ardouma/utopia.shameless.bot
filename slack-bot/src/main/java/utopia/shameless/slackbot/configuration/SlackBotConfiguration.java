@@ -1,4 +1,4 @@
-package utopia.shameless.slackbot;
+package utopia.shameless.slackbot.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,6 +15,5 @@ public class SlackBotConfiguration {
     RestTemplate restTemplate() {
         return new RestTemplate();
     }
-
 
 }

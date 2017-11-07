@@ -1,5 +1,6 @@
 package me.ramswaroop.jbot.core.slack;
 
+import me.ramswaroop.jbot.core.slack.models.Channel;
 import me.ramswaroop.jbot.core.slack.models.RTM;
 import me.ramswaroop.jbot.core.slack.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class SlackService {
     private User currentUser;
     private List<String> dmChannels;
     private String webSocketUrl;
+    private List<Channel> channels;
 
     /**
      * Start a RTM connection. Fetch the web socket url to connect to, current user details
@@ -29,11 +31,13 @@ public class SlackService {
      *
      * @param slackToken
      */
-    public void startRTM(String slackToken) {
+    public RTM startRTM(String slackToken) {
         RTM rtm = slackDao.startRTM(slackToken);
         currentUser = rtm.getUser();
         dmChannels = rtm.getDmChannels();
         webSocketUrl = rtm.getWebSocketUrl();
+        channels = rtm.getChannels();
+        return rtm;
     }
 
     /**
@@ -72,5 +76,13 @@ public class SlackService {
 
     public void setWebSocketUrl(String webSocketUrl) {
         this.webSocketUrl = webSocketUrl;
+    }
+
+    public List<Channel> getChannels() {
+        return channels;
+    }
+
+    public void setChannels(List<Channel> channels) {
+        this.channels = channels;
     }
 }

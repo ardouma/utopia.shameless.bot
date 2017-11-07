@@ -1,4 +1,4 @@
-package utopia.shameless.slackbot;
+package utopia.shameless.slackbot.service;
 
 
 import org.springframework.beans.factory.annotation.Autowired;

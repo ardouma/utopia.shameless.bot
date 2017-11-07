@@ -14,6 +14,7 @@ public class RTM {
     private List<String> dmChannels;
     private User user;
     private List<User> users;
+    private List<Channel> channels;
 
     public String getWebSocketUrl() {
         return webSocketUrl;
@@ -45,5 +46,13 @@ public class RTM {
 
     public void setUsers(final List<User> users) {
         this.users = users;
+    }
+
+    public List<Channel> getChannels() {
+        return channels;
+    }
+
+    public void setChannels(List<Channel> channels) {
+        this.channels = channels;
     }
 }

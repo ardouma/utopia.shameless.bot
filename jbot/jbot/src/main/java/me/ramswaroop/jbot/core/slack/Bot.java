@@ -2,6 +2,7 @@ package me.ramswaroop.jbot.core.slack;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import me.ramswaroop.jbot.core.slack.models.RTM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +67,7 @@ public abstract class Bot {
      */
     @Autowired
     protected SlackService slackService;
+    protected RTM rtm;
 
     /**
      * Class extending this must implement this as it's
@@ -400,10 +402,11 @@ public abstract class Bot {
      */
     @PostConstruct
     private void startWebSocketConnection() {
-        slackService.startRTM(getSlackToken());
+        RTM rtm= slackService.startRTM(getSlackToken());
         if (slackService.getWebSocketUrl() != null) {
             WebSocketConnectionManager manager = new WebSocketConnectionManager(client(), handler(), slackService.getWebSocketUrl());
             manager.start();
+            this.rtm = rtm;
         } else {
             logger.error("No websocket url returned by Slack.");
         }

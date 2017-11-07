@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import me.ramswaroop.jbot.core.slack.models.Channel;
 import me.ramswaroop.jbot.core.slack.models.RTM;
 import me.ramswaroop.jbot.core.slack.models.User;
 import org.slf4j.Logger;
@@ -73,6 +74,13 @@ public class SlackDao {
                             users.add(objectMapper.treeToValue(userIterator.next(), User.class));
                         }
                         rtm.setUsers(users);
+
+                        Iterator<JsonNode> channelIterator =  node.get("channels").iterator();
+                        List<Channel> channels = new ArrayList<>();
+                        while (channelIterator.hasNext()) {
+                            channels.add(objectMapper.treeToValue(userIterator.next(), Channel.class));
+                        }
+                        rtm.setChannels(channels);
                         return rtm;
                     } catch (Exception e) {
                         logger.error("Error de-serializing RTM.start(): ", e);
@@ -100,4 +108,6 @@ public class SlackDao {
 
         return rtm;
     }
+
+
 }
