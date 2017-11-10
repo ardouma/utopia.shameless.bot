@@ -3,11 +3,10 @@ package utopia.shameless.slackbot.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import utopia.shameless.slackbot.model.internal.User;
 import utopia.shameless.slackbot.model.slack.UserList;
@@ -25,10 +24,11 @@ public class SlackUserService {
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${slackApiToken}")
+    @Value("${slackBotToken}")
     private String slackToken;
 
-    private Map<String, User> userMap = Collections.emptyMap();
+    private Map<String, User> idToUserMap = Collections.emptyMap();
+    private Map<String, User> nameToUserMap = Collections.emptyMap();
 
     @PostConstruct
     @Scheduled(cron = "0 0 * * * *")
@@ -40,17 +40,27 @@ public class SlackUserService {
         System.out.println("User Service Endpoint: " + endpoint + " \n Map: " + map);
         ResponseEntity<UserList> response = restTemplate.getForEntity(endpoint, UserList.class, map);
 
-        userMap = response.getBody().getMembers()
+        idToUserMap = response.getBody().getMembers()
                 .stream()
                 .map(this::toUser)
+                .filter(x-> ! StringUtils.isEmpty(x.getName()))
                 .collect(Collectors.toMap(k -> k.getId(), v -> v));
 
-        System.out.println("user list results:\n\n" + userMap);
+        nameToUserMap = response.getBody().getMembers()
+                .stream()
+                .map(this::toUser)
+                .filter(x-> ! StringUtils.isEmpty(x.getName()))
+                .collect(Collectors.toMap(k -> k.getName(), v -> v));
+
+
+        System.out.println("user list results:\n\n" + idToUserMap.values());
     }
 
-    public User getUser(String id){
-        return userMap.get(id);
+    public User getUser(String id) {
+        return idToUserMap.getOrDefault(id, nameToUserMap.get(id));
     }
+
+
 
     private User toUser(UserList.Member member) {
         User user = new User();

@@ -26,7 +26,7 @@ public class SlackChannelService {
     @Autowired
     RestTemplate restTemplate;
 
-    @Value("${slackApiToken}")
+    @Value("${slackBotToken}")
     private String slackToken;
 
     private Map<String, Channel> channelMap = Collections.emptyMap();
@@ -48,8 +48,21 @@ public class SlackChannelService {
         System.out.println("user list results:\n\n" + channelMap);
     }
 
-    public String getChannelId(String name){
-        return channelMap.getOrDefault(name, EMPTY).getId();
+    public utopia.shameless.slackbot.model.internal.Channel getChannel(String name) {
+        utopia.shameless.slackbot.model.internal.Channel channel = new utopia.shameless.slackbot.model.internal.Channel();
+
+        Channel slackChannel = channelMap.get(name);
+        if (slackChannel != null) {
+            channel.setType(utopia.shameless.slackbot.model.internal.Channel.ChannelType.CHANNEL);
+            channel.setName(slackChannel.getName());
+            channel.setId(slackChannel.getId());
+
+            return channel;
+        } else {
+            return null;
+        }
+
+
     }
 
 

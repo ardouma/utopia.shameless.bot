@@ -77,9 +77,11 @@ public class SlackDao {
 
                         Iterator<JsonNode> channelIterator =  node.get("channels").iterator();
                         List<Channel> channels = new ArrayList<>();
+                        /*
                         while (channelIterator.hasNext()) {
                             channels.add(objectMapper.treeToValue(userIterator.next(), Channel.class));
                         }
+                        */
                         rtm.setChannels(channels);
                         return rtm;
                     } catch (Exception e) {

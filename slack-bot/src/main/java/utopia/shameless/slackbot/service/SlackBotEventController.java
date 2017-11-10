@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
+import utopia.shameless.slackbot.model.internal.Channel;
 
 
 @Component
@@ -30,6 +31,9 @@ public class SlackBotEventController extends Bot {
 
     @Autowired
     private SlackChannelService slackChannelService;
+
+    @Autowired
+    private SlackDmService slackDmService;
 
 
     @Override
@@ -52,15 +56,28 @@ public class SlackBotEventController extends Bot {
 
     @Scheduled(initialDelay = 10000, fixedDelay = 10000)
     public void scheduled(){
-        sendMessage("general", "This is a test");
+        if(this.session != null) {
+            sendMessage(slackChannelService.getChannel("general"), "This is a test");
+            sendMessage(slackDmService.getChannel(slackUserService.getUser("Rags")), "Hi Rags" );
+            sendMessage(slackDmService.getChannel(slackUserService.getUser("Andrew")), "Hi Andrew" );
+
+        }
     }
 
-    public void sendMessage(String channel, String text){
+    public void sendMessage(Channel channel, String text){
         Event event=null;
         Message reply = new Message();
         reply.setText(text);
-        reply.setChannel(channel);
-        reply.setType(EventType.MESSAGE.name().toLowerCase());
+        reply.setChannel(channel.getId());
+        switch(channel.getType()){
+            case CHANNEL:
+                reply.setType(EventType.MESSAGE.name().toLowerCase());
+                break;
+            case DM:
+                reply.setType(EventType.MESSAGE.name().toLowerCase());
+                break;
+        }
+
         reply(session, event, reply);
     }
 
