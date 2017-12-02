@@ -3,7 +3,7 @@ package utopia.shameless.slackbot.service
 import spock.lang.Specification
 import spock.lang.Unroll
 import utopia.shameless.slackbot.model.internal.Channel
-import utopia.shameless.slackbot.model.internal.Event
+import utopia.shameless.slackbot.model.internal.Message
 import utopia.shameless.slackbot.model.internal.User
 
 @Unroll
@@ -22,7 +22,7 @@ class EventProcessorTest extends Specification {
 
     def "ProcessEvent"() {
         setup:
-        Event event = new Event()
+        Message event = new Message()
         event.setChannel(new Channel(type:Channel.ChannelType.DM, id: "1234", name:"user1"))
         event.setTs(System.currentTimeMillis()/1000.0)
         event.setUser(new User(id: "user1Id", name: user, provence: "myProv"))

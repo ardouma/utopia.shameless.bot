@@ -15,9 +15,6 @@ import org.springframework.web.socket.WebSocketSession
 import utopia.shameless.slackbot.model.internal.Channel
 import utopia.shameless.slackbot.model.internal.User
 
-import java.util.Optional
-
-
 @Component
 class SlackBotEventController extends Bot implements Messager {
 
@@ -53,7 +50,7 @@ class SlackBotEventController extends Bot implements Messager {
 
     @Controller(events = [ EventType.MESSAGE, EventType.DIRECT_MESSAGE, EventType.DIRECT_MENTION ])
     void onReceiveDM(WebSocketSession session, Event event) {
-        utopia.shameless.slackbot.model.internal.Event uEvent = new utopia.shameless.slackbot.model.internal.Event()
+        utopia.shameless.slackbot.model.internal.Message uEvent = new utopia.shameless.slackbot.model.internal.Message()
         User user = slackUserService.getUser(event.getUserId())
 
         uEvent.setChannel(

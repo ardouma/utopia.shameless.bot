@@ -1,23 +1,19 @@
 package utopia.shameless.slackbot.configuration
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import utopia.shameless.slackbot.model.internal.UtopiaEventType
 
 @ConfigurationProperties(prefix = "app.module")
-public class ModuleProperties {
+class ModuleProperties {
 
     BotProperties bot
 
-    public static class BotProperties {
-        KdProperties kdnews
+    static class BotProperties {
+        Map<UtopiaEventType, KdProperties> kdnews
 
-        public static class KdProperties {
-            String traditionalMarch
-            String abduct
-            String conquest
-            String plunder
-            String massacre
-            String raze
-            String bounce
+        static class KdProperties {
+            String inbound
+            String outbound
         }
 
     }

@@ -1,13 +1,22 @@
-package utopia.shameless.slackbot.module.bot;
+package utopia.shameless.slackbot.module.bot
 
-import org.springframework.beans.factory.annotation.Autowired;
-import utopia.shameless.slackbot.configuration.ModuleProperties;
-import utopia.shameless.slackbot.model.internal.Event;
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.util.Pair
+import org.springframework.stereotype.Component
+import utopia.shameless.slackbot.configuration.ModuleProperties
+import utopia.shameless.slackbot.model.internal.Message
+import utopia.shameless.slackbot.model.internal.UtopiaEventType
+import utopia.shameless.slackbot.model.internal.UtopiaWarRoomEvent
+import utopia.shameless.slackbot.model.internal.UtopianUser
+import utopia.shameless.slackbot.repository.AttackRepository
+import utopia.shameless.slackbot.repository.KingdomRepository
 
-import javax.annotation.PostConstruct;
-import java.util.regex.Pattern;
+import javax.annotation.PostConstruct
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
-public class KingdomNewsBotModule extends BotModule{
+@Component
+class KingdomNewsBotModule extends BotModule {
 
     /*
      Traditional March/Anon
@@ -28,24 +37,63 @@ NEW KDNEWS: Fat Sheet Bastard (7:7) attempted to invade NOWcanSMD (5:10). [creto
 Raze
 NEW KDNEWS: Aquila (7:16) razed 67 acres of Voltron DefenderOfTheUniverse (5:10). [fortnight]
      */
-    Pattern corePattern = Pattern.compile("^NEW KDNEWS:");
+    Pattern corePattern = Pattern.compile("^NEW KDNEWS:")
 
     @Autowired
-    ModuleProperties moduleProperties;
+    ModuleProperties moduleProperties
+
+    @Autowired
+    AttackRepository repository
+
+    @Autowired
+    KingdomRepository kdRepository
+
+    List<Object[]>regexes = new LinkedList<>()
+
 
     @PostConstruct
-    public void init(){
-        Pattern.compile(moduleProperties.getBot().getKdnews().getTraditionalMarch());
+    void init() {
+        moduleProperties.bot.kdnews.each {
+            if(it.value.inbound)
+                regexes.add([it.key, Pattern.compile(it.value.inbound), true])
+            if(it.value.outbound)
+                regexes.add([it.key, Pattern.compile(it.value.outbound), false])
+        }
+        /*
+        regexes.add(Pair.of(UtopiaEventType.Abduct, Pattern.compile(moduleProperties.bot.kdnews.abduct)))
+        regexes.add(Pair.of(UtopiaEventType.Ambush, Pattern.compile(moduleProperties.bot.kdnews.ambush)))
+        regexes.add(Pair.of(UtopiaEventType.Bounce, Pattern.compile(moduleProperties.bot.kdnews.bounce)))
+        regexes.add(Pair.of(UtopiaEventType.Plunder, Pattern.compile(moduleProperties.bot.kdnews.plunder)))
+        regexes.add(Pair.of(UtopiaEventType.Raze, Pattern.compile(moduleProperties.bot.kdnews.raze)))
+        regexes.add(Pair.of(UtopiaEventType.TraditionalMarch, Pattern.compile(moduleProperties.bot.kdnews.traditionalMarch)))
+        */
     }
-    //Pattern traditionalMarchPattern = Pattern.compile("\((\d+:d+)\\)")
 
     @Override
-    public boolean accept(Event event) {
+    boolean accept(Message event) {
         return corePattern.matcher(event.getMessage()).matches();
     }
 
     @Override
-    public void execute(Event event) {
+    void execute(Message msg) {
+        Matcher matcher
+        Object[] match = regexes.find {
+            matcher = it[1].matcher(msg.message)
+            matcher.matches()
+        }
+        UtopiaWarRoomEvent event = new UtopiaWarRoomEvent()
+
+        event.attacker = new UtopianUser(kingdom: matcher.group("attackerKD"), province: matcher.group("attacker"))
+        event.defender = new UtopianUser(kingdom: matcher.group("attackeeKd"), province: matcher.group("attackee"))
+        event.damage = matcher.group("dmg") as Integer
+        event.eventType = match[0]
+        event.eventCategory = match[0].getCategory()
+        event.date = null
+        event.anno = null
+        event.eventTime = new Date()
+
+        repository.saveUtopiaEvent(event)
+//        kdRepository.increamentHostility()
 
     }
 }
